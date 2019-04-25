@@ -9,7 +9,7 @@ import org.apache.tools.ant.filters.ReplaceTokens
 
 String majorVersion = 3
 String minorVersion = 7
-String minecraftVersion = "1.13.2"
+String minecraftVersion = "1.14"
 Grgit repo = Grgit.open(currentDir: project.rootDir)
 
 String branchArtifactId = "rpgitems"
@@ -67,7 +67,8 @@ dependencies {
     // compileOnly files('lib/spigot-1.13.2.jar')
     // compileOnly files('lib/patched_1.13.2.jar')
     api "org.spigotmc:spigot-api:$minecraftVersion-R0.1-SNAPSHOT"
-    api 'cat.nyaa:nyaacore:6.3-SNAPSHOT'
+    // api 'cat.nyaa:nyaacore:6.4-SNAPSHOT'
+    compileOnly files('lib/NyaaCore.jar')
 
     compileOnly 'io.netty:netty-all:4.1.25.Final' // netty is shadowed inside spigot jar
     compileOnly 'org.ow2.asm:asm:7.0' // netty is shadowed inside spigot jar

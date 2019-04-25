@@ -1,13 +1,9 @@
 package think.rpgitems.power.impl;
 
 import cat.nyaa.nyaacore.Pair;
-import cat.nyaa.nyaacore.utils.RayTraceUtils;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
-import org.bukkit.Bukkit;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
@@ -24,6 +20,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
+import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import think.rpgitems.RPGItems;
 import think.rpgitems.power.*;
@@ -150,8 +147,8 @@ public class PowerParticleBarrier extends BasePower implements PowerPlain, Power
             barrier(player, player);
             return PowerResult.ok();
         } else {
-            List<LivingEntity> livingEntities = RayTraceUtils.rayTraceEntites(player, 32);
-            Optional<LivingEntity> optionalPlayer = livingEntities.stream().min(Comparator.comparing(p -> p.getLocation().distanceSquared(player.getLocation())));
+            Optional<RayTraceResult> result = Optional.ofNullable(player.getWorld().rayTraceEntities(player.getEyeLocation(), player.getEyeLocation().getDirection(), 32, 1, e -> !e.equals(player) && e instanceof Player));
+            Optional<Player> optionalPlayer = result.map(r -> (Player) r.getHitEntity());
             if (optionalPlayer.isPresent()) {
                 barrier(player, optionalPlayer.get());
                 return PowerResult.ok();

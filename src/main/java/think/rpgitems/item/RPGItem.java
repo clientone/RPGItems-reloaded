@@ -29,8 +29,7 @@ import org.bukkit.inventory.ShapedRecipe;
 import org.bukkit.inventory.meta.Damageable;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.LeatherArmorMeta;
-import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
-import org.bukkit.inventory.meta.tags.ItemTagType;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.librazy.nclangchecker.LangKey;
@@ -44,7 +43,6 @@ import think.rpgitems.power.*;
 import think.rpgitems.power.impl.*;
 import think.rpgitems.utils.MaterialUtils;
 
-import javax.annotation.Nullable;
 import java.io.File;
 import java.util.*;
 import java.util.Map.Entry;
@@ -54,6 +52,7 @@ import java.util.regex.Matcher;
 import java.util.stream.Collectors;
 
 import static org.bukkit.ChatColor.COLOR_CHAR;
+import static org.bukkit.persistence.PersistentDataType.INTEGER;
 import static think.rpgitems.utils.ItemTagUtils.*;
 
 public class RPGItem {
@@ -493,7 +492,7 @@ public class RPGItem {
         item.setType(getItem());
         ItemMeta meta = item.getItemMeta();
         List<String> lore = new ArrayList<>(getLore());
-        CustomItemTagContainer itemTagContainer = meta.getCustomTagContainer();
+        PersistentDataContainer itemTagContainer = meta.getPersistentDataContainer();
         SubItemTagContainer rpgitemsTagContainer = makeTag(itemTagContainer, TAG_META);
         set(rpgitemsTagContainer, TAG_ITEM_UID, getUid());
         addDurabilityBar(rpgitemsTagContainer, lore);
@@ -502,7 +501,7 @@ public class RPGItem {
         }
         Damageable damageable = (Damageable) meta;
         if (getMaxDurability() > 0) {
-            int durability = computeIfAbsent(rpgitemsTagContainer, TAG_DURABILITY, ItemTagType.INTEGER, this::getDefaultDurability);
+            int durability = computeIfAbsent(rpgitemsTagContainer, TAG_DURABILITY, INTEGER, this::getDefaultDurability);
             if (isCustomItemModel()) {
                 damageable.setDamage(getDataValue());
             } else {
@@ -553,10 +552,10 @@ public class RPGItem {
         item.setItemMeta(refreshAttributeModifiers(meta));
     }
 
-    private void addDurabilityBar(CustomItemTagContainer meta, List<String> lore) {
+    private void addDurabilityBar(PersistentDataContainer meta, List<String> lore) {
         int maxDurability = getMaxDurability();
         if (maxDurability > 0) {
-            int durability = computeIfAbsent(meta, TAG_DURABILITY, ItemTagType.INTEGER, this::getDefaultDurability);
+            int durability = computeIfAbsent(meta, TAG_DURABILITY, INTEGER, this::getDefaultDurability);
             if (isHasDurabilityBar()) {
                 StringBuilder out = new StringBuilder();
                 char boxChar = '\u25A0';
@@ -1015,7 +1014,7 @@ public class RPGItem {
     public ItemStack toItemStack() {
         ItemStack rStack = new ItemStack(getItem());
         ItemMeta meta = rStack.getItemMeta();
-        CustomItemTagContainer itemTagContainer = meta.getCustomTagContainer();
+        PersistentDataContainer itemTagContainer = meta.getPersistentDataContainer();
         SubItemTagContainer rpgitemsTagContainer = makeTag(itemTagContainer, TAG_META);
         set(rpgitemsTagContainer, TAG_ITEM_UID, getUid());
         if (isHasStackId()) {
@@ -1032,9 +1031,9 @@ public class RPGItem {
     public void toModel(ItemStack itemStack) {
         updateItem(itemStack);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        SubItemTagContainer meta = makeTag(itemMeta.getCustomTagContainer(), TAG_META);
-        meta.removeCustomTag(TAG_OWNER);
-        meta.removeCustomTag(TAG_STACK_ID);
+        SubItemTagContainer meta = makeTag(itemMeta.getPersistentDataContainer(), TAG_META);
+        meta.remove(TAG_OWNER);
+        meta.remove(TAG_STACK_ID);
         set(meta, TAG_IS_MODEL, true);
         meta.commit();
         itemMeta.setDisplayName(getDisplayName());
@@ -1044,14 +1043,14 @@ public class RPGItem {
     public void unModel(ItemStack itemStack, Player owner) {
         updateItem(itemStack);
         ItemMeta itemMeta = itemStack.getItemMeta();
-        SubItemTagContainer meta = makeTag(itemMeta.getCustomTagContainer(), TAG_META);
+        SubItemTagContainer meta = makeTag(itemMeta.getPersistentDataContainer(), TAG_META);
         if (isCanBeOwned() && owner != null) {
             set(meta, TAG_OWNER, owner);
         }
         if (isHasStackId()) {
             set(meta, TAG_STACK_ID, UUID.randomUUID());
         }
-        meta.removeCustomTag(TAG_IS_MODEL);
+        meta.remove(TAG_IS_MODEL);
         meta.commit();
         itemMeta.setDisplayName(getDisplayName());
         itemStack.setItemMeta(itemMeta);
@@ -1068,6 +1067,7 @@ public class RPGItem {
     public void print(CommandSender sender) {
         print(sender, true);
     }
+
     public void print(CommandSender sender, boolean advance) {
         String author = this.getAuthor();
         BaseComponent authorComponent = new TextComponent(author);
@@ -1131,7 +1131,7 @@ public class RPGItem {
         }
         ItemMeta itemMeta = item.getItemMeta();
         SubItemTagContainer tagContainer = makeTag(itemMeta, TAG_META);
-        int durability = computeIfAbsent(tagContainer, TAG_DURABILITY, ItemTagType.INTEGER, this::getDefaultDurability);
+        int durability = computeIfAbsent(tagContainer, TAG_DURABILITY, INTEGER, this::getDefaultDurability);
         tagContainer.commit();
         item.setItemMeta(itemMeta);
         return Optional.of(durability);
@@ -1147,7 +1147,7 @@ public class RPGItem {
         ItemMeta itemMeta = item.getItemMeta();
         if (getMaxDurability() != -1) {
             SubItemTagContainer tagContainer = makeTag(itemMeta, TAG_META);
-            durability = computeIfAbsent(tagContainer, TAG_DURABILITY, ItemTagType.INTEGER, this::getDefaultDurability);
+            durability = computeIfAbsent(tagContainer, TAG_DURABILITY, INTEGER, this::getDefaultDurability);
             if (checkbound && (
                     (val > 0 && durability < getDurabilityLowerBound()) ||
                             (val < 0 && durability > getDurabilityUpperBound())

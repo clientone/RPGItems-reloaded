@@ -15,8 +15,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
-import org.bukkit.inventory.meta.tags.ItemTagType;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.bukkit.util.FileUtil;
 import think.rpgitems.AdminHandler;
 import think.rpgitems.I18n;
@@ -37,6 +36,7 @@ import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.logging.Level;
 
+import static org.bukkit.persistence.PersistentDataType.TAG_CONTAINER;
 import static think.rpgitems.item.RPGItem.*;
 import static think.rpgitems.power.Utils.rethrow;
 import static think.rpgitems.utils.ItemTagUtils.*;
@@ -583,9 +583,9 @@ public class ItemManager {
         if (!item.hasItemMeta())
             return Optional.empty();
         ItemMeta meta = item.getItemMeta();
-        CustomItemTagContainer tagContainer = meta.getCustomTagContainer();
-        if (tagContainer.hasCustomTag(TAG_META, ItemTagType.TAG_CONTAINER)) {
-            CustomItemTagContainer metaTag = getTag(tagContainer, TAG_META);
+        PersistentDataContainer tagContainer = meta.getPersistentDataContainer();
+        if (tagContainer.has(TAG_META, TAG_CONTAINER)) {
+            PersistentDataContainer metaTag = getTag(tagContainer, TAG_META);
             int uid = getInt(metaTag, TAG_ITEM_UID);
             Optional<Boolean> optIsModel = optBoolean(metaTag, TAG_IS_MODEL);
             if (ignoreModel && optIsModel.orElse(false)) {
@@ -613,9 +613,9 @@ public class ItemManager {
             return null;
         }
         ItemMeta meta = item.getItemMeta();
-        CustomItemTagContainer tagContainer = meta.getCustomTagContainer();
-        if (tagContainer.hasCustomTag(TAG_META, ItemTagType.TAG_CONTAINER)) {
-            CustomItemTagContainer itemMeta = getTag(tagContainer, TAG_META);
+        PersistentDataContainer tagContainer = meta.getPersistentDataContainer();
+        if (tagContainer.has(TAG_META, TAG_CONTAINER)) {
+            PersistentDataContainer itemMeta = getTag(tagContainer, TAG_META);
             int uid = getInt(itemMeta, TAG_ITEM_UID);
             Optional<RPGItem> opt = ItemManager.getItem(uid);
             if (!opt.isPresent()) return null;

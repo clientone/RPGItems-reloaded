@@ -4,12 +4,13 @@ import cat.nyaa.nyaacore.LanguageRepository;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
+import org.bukkit.persistence.PersistentDataContainer;
 import think.rpgitems.item.ItemManager;
 import think.rpgitems.item.RPGItem;
 import think.rpgitems.power.Attribute;
 import think.rpgitems.power.RPGCommandReceiver;
 
+import java.util.Objects;
 import java.util.Optional;
 
 import static think.rpgitems.item.RPGItem.*;
@@ -35,8 +36,8 @@ public class UserHandler extends RPGCommandReceiver {
         RPGItem item = getItem(sender, false);
         ItemStack itemStack = p.getInventory().getItemInMainHand();
         item.print(sender, false);
-        CustomItemTagContainer tagContainer = itemStack.getItemMeta().getCustomTagContainer();
-        CustomItemTagContainer metaTag = getTag(tagContainer, TAG_META);
+        PersistentDataContainer tagContainer = Objects.requireNonNull(itemStack.getItemMeta()).getPersistentDataContainer();
+        PersistentDataContainer metaTag = getTag(tagContainer, TAG_META);
         Optional<Boolean> optIsModel = optBoolean(metaTag, TAG_IS_MODEL);
         if (optIsModel.orElse(false)){
             msg(p, "message.model.is");

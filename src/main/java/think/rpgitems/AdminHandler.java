@@ -23,8 +23,7 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.EnchantmentStorageMeta;
 import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.tags.CustomItemTagContainer;
-import org.bukkit.inventory.meta.tags.ItemTagType;
+import org.bukkit.persistence.PersistentDataContainer;
 import org.librazy.nclangchecker.LangKey;
 import think.rpgitems.item.ItemGroup;
 import think.rpgitems.item.ItemManager;
@@ -55,6 +54,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static org.bukkit.persistence.PersistentDataType.TAG_CONTAINER;
 import static think.rpgitems.item.RPGItem.*;
 import static think.rpgitems.power.Utils.rethrow;
 import static think.rpgitems.utils.ItemTagUtils.getInt;
@@ -89,8 +89,8 @@ public class AdminHandler extends RPGCommandReceiver {
             return;
         }
         ItemMeta meta = item.getItemMeta();
-        CustomItemTagContainer tagContainer = meta.getCustomTagContainer();
-        if (tagContainer.hasCustomTag(TAG_META, ItemTagType.TAG_CONTAINER)) {
+        PersistentDataContainer tagContainer = meta.getPersistentDataContainer();
+        if (tagContainer.has(TAG_META, TAG_CONTAINER)) {
             int uid = getInt(getTag(tagContainer, TAG_META), TAG_ITEM_UID);
             player.sendMessage("new item: " + uid);
             Optional<RPGItem> rpgItem = ItemManager.getItem(uid);
